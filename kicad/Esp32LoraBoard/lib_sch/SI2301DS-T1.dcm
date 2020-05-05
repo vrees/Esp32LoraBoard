@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP SI2301DS-T1
+D MOSFET 20V 2.3A 1.25W
+K
+F https://componentsearchengine.com/Datasheets/1/SI2301DS-T1.pdf
+$ENDCMP
+#
+#End Doc Library

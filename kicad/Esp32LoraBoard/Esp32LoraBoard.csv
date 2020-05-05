@@ -1,0 +1,60 @@
+Source,/home/vrees/work/git-repos/water-level-meter-espidf/kicad/Esp32LoraBoard/Esp32LoraBoard.sch
+Kicad Rev,Eeschema 5.1.4-e60b266~84~ubuntu18.04.1
+Generated Date,Sa 18 Apr 2020 08:45:09 CEST
+
+Title,Esp32LoraBoard
+Company,Viktor Rees
+Revision,1.1
+Date Issue,2020-04-11
+Comment,Reset-Button added
+
+Reference,Value,Feld4,Feld5,Feld6,Feld7,Description,Height,Manufacturer_Name,Manufacturer_Part_Number,Library,Library Ref
+U3,RFM95W-868S2,RF_Module,RFM95W-868S2
+J1,USB_B_Micro,Connector,USB_B_Micro
+C1,100n,Device,C
+C2,10u,Device,CP_Small
+R1,10k,Device,R
+C4,100n,Device,C_Small
+C3,1u,Device,C_Small
+AE1,Antenna_Shield,Device,Antenna_Shield
+BT1,LiFePo-Batterie,Device,Battery_Cell
+U1,LM3940IMP-3.3,41K5122,LM3940IMP-33,SOT-223-4,National Semiconductors,,,,,LM3940IMP-3.3,LM3940IMP-3.3
+J2,Power-Selector,Connector,Conn_01x03_Male
+J4,ESP_PROG_JTAG,Connector_Generic,Conn_02x05_Odd_Even
+C5,1n,Device,C_Small
+R2,10k,Device,R
+C6,1n,Device,C_Small
+Q1,UMH3N,,,,,2 NPN pre-biased (Dual) 100mA 50V SC-70-6(SOT-363) Digital Transistors RoHS,1.1,Changjiang Electronics Tech (CJ),UMH3N,UMH3N,UMH3N
+J5,Prog,Connector,Conn_01x05_Male
+U2,ESP32-WROOM-32,RF_Module,ESP32-WROOM-32
+Q2,Si2302DS_NMOS,Device,Q_NMOS_GSD
+R5,optional,Device,R
+R6,optional,Device,R
+R7,100k,Device,R
+J7,Measurement-Selector,Connector,Conn_01x03_Male
+R8,100k,Device,R
+TP1,TP_U_BATT,Connector,TestPoint
+R4,10k,Device,R
+R3,10k,Device,R
+J6,ext_Measure,Connector,Screw_Terminal_01x04
+J3,Testpoints,Connector,Conn_01x05_Male
+Q3,Si2301DS_PMOS,Device,Q_PMOS_GSD
+TP3,VCC_2,Connector,TestPoint
+Q5,Si2301DS_PMOS,Device,Q_PMOS_GSD
+R12,100k,Device,R
+R13,10k,Device,R
+R11,10k,Device,R
+Q6,Si2302DS_NMOS,Device,Q_NMOS_GSD
+J8,OLED_128x64,Connector,Conn_01x04_Female
+R10,10k,Device,R
+R9,10k,Device,R
+Q4,Si2302DS_NMOS,Device,Q_NMOS_GSD
+TP2,TP_U_EXT,Connector,TestPoint
+C8,100n,Device,C
+C7,100n,Device,C
+SW1,Rotary_Encoder,Device,Rotary_Encoder_Switch
+R14,10k,Device,R
+R15,10k,Device,R
+C9,1u,Device,C
+C10,1u,Device,C
+SW2,Reset,Switch,SW_Push_Dual_x2

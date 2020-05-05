@@ -1,0 +1,7 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP BMP280
+D Digital Barometric Pressure Altitude Sensor High Precision Atmospheric Module for arduino
+$ENDCMP
+#
+#End Doc Library
