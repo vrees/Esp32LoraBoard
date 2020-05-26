@@ -50,34 +50,36 @@ void print_wakeup_reason()
   switch (wakeup_reason)
   {
   case ESP_SLEEP_WAKEUP_EXT0:
-    printf("Wakeup caused by external signal using RTC_IO");
+    printf("Wakeup caused by external signal using RTC_IO\n");
     break;
   case ESP_SLEEP_WAKEUP_EXT1:
-    printf("Wakeup caused by external signal using RTC_CNTL");
+    printf("Wakeup caused by external signal using RTC_CNTL\n");
     break;
   case ESP_SLEEP_WAKEUP_TIMER:
-    printf("Wakeup caused by timer");
+    printf("Wakeup caused by timer\n");
     break;
   case ESP_SLEEP_WAKEUP_TOUCHPAD:
-    printf("Wakeup caused by touchpad");
+    printf("Wakeup caused by touchpad\n");
     break;
   case ESP_SLEEP_WAKEUP_ULP:
-    printf("Wakeup caused by ULP program");
+    printf("Wakeup caused by ULP program\n");
     break;
   case ESP_SLEEP_WAKEUP_UNDEFINED:
-    printf("Wakeup was not caused by deep sleep");
+    printf("Wakeup was not caused by deep sleep\n");
     break;
   default:
-    printf("Wakeup was not caused by deep sleep");
+    printf("Wakeup was not caused by deep sleep\n");
     break;
   }
 }
 
 void wakeupAndSleep()
 {
+  printf("BEGIN: wakeupAndSleep()\n");
+
   //Increment boot number and print it every reboot
   ++bootCount;
-  printf("Boot number: %d", bootCount);
+  printf("Boot number: %d\n", bootCount);
 
   //Print the wakeup reason for ESP32
   print_wakeup_reason();
@@ -89,7 +91,7 @@ void wakeupAndSleep()
   We set our ESP32 to wake up every 15 seconds
   */
   esp_sleep_enable_timer_wakeup(sleepTimeInSeconds * uS_TO_S_FACTOR);
-  printf("Setup ESP32 to sleep for every %i in Seconds", sleepTimeInSeconds);
+  printf("Setup ESP32 to sleep for every %i in Seconds\n", sleepTimeInSeconds);
 
   /*
   Next we decide what all peripherals to shut down/keep on
@@ -111,7 +113,7 @@ void wakeupAndSleep()
   sleep was started, it will sleep forever unless hardware
   reset occurs.
   */
-  printf("Going to sleep now");
+  printf("Going to sleep now\n");
   esp_deep_sleep_start();
   printf("This will never be printed");
 }
