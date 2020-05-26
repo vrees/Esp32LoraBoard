@@ -1,9 +1,9 @@
 # Esp32LoraBoard
 ESP32 board including Lora RFM95 module optimized for low power deep sleep operation.
 
-[Schema](../kicad/images_V1.1/Esp32LoraBoard_Kicad_Schema_V1.1.pdf)
-[PCB 3D](../kicad/images_V1.1/Esp32LoraBoard_Kicad_PCB_3D_V1.1.png)
-[PCB](../kicad/images_V1.1/ 	Esp32LoraBoard_Kicad_PCB_V1.1.png)
+[Schema](../blob/master/kicad/images_V1.1/Esp32LoraBoard_Kicad_Schema_V1.1.pdf)
+[PCB 3D](../blob/master/kicad/images_V1.1/Esp32LoraBoard_Kicad_PCB_3D_V1.1.png)
+[PCB](../blob/master/kicad/images_V1.1/Esp32LoraBoard_Kicad_PCB_V1.1.png)
 
 
 ## Power consumption
