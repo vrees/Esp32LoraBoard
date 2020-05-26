@@ -20,7 +20,7 @@
 // Control Pins
 #define POWER_ENABLE    (16)
 #define U_EXT_ENABLE    (4)
-#define UBAT_MEASURE    (35)
+#define U_EXT_MEASURE   (35)
 #define UBAT_ENABLE     (25)
 #define UBAT_MEASURE    (34)
 

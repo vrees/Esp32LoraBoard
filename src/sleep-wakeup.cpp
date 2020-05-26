@@ -1,43 +1,74 @@
-#include <Arduino.h>
-#include <esp_deep_sleep.h>
+
+#include "freertos/FreeRTOS.h"
+#include "esp_event.h"
+#include "nvs_flash.h"
+#include "esp_sleep.h"
+#include "driver/gpio.h"
+#include "esp32-lora-board-pins.h"
 
 #define uS_TO_S_FACTOR 1000000 /* Conversion factor for micro seconds to seconds */
-#define TIME_TO_SLEEP 15       /* Time ESP32 will go to sleep (in seconds) */
+int sleepTimeInSeconds = 15;   /* Time ESP32 will go to sleep (in seconds) */
 
 RTC_DATA_ATTR int bootCount = 0;
 
+#define UBAT_ENABLE (25)
+
+void xxxxx()
+{
+  printf("Hello world!\n");
+  gpio_pad_select_gpio(UBAT_ENABLE);
+  gpio_set_direction((gpio_num_t)UBAT_ENABLE, GPIO_MODE_OUTPUT);
+
+  gpio_set_intr_type((gpio_num_t)UBAT_ENABLE, GPIO_INTR_ANYEDGE);
+
+  /* Blink off (output low) */
+  printf("Turning off the LED\n");
+  gpio_set_level((gpio_num_t)UBAT_ENABLE, 0);
+  vTaskDelay(2000 / portTICK_PERIOD_MS);
+  /* Blink on (output high) */
+  printf("Turning on the LED\n");
+  gpio_set_level((gpio_num_t)UBAT_ENABLE, 1);
+  vTaskDelay(2000 / portTICK_PERIOD_MS);
+
+  printf("Restarting now.\n");
+  fflush(stdout);
+  gpio_deep_sleep_hold_en();
+  gpio_hold_en((gpio_num_t)UBAT_ENABLE);
+  esp_sleep_enable_timer_wakeup(10000000);
+  esp_deep_sleep_start();
+}
+
 /*
 Method to print the reason by which ESP32
-has been awaken from sleep
 */
 void print_wakeup_reason()
 {
-  esp_deep_sleep_wakeup_cause_t wakeup_reason;
+  esp_sleep_wakeup_cause_t wakeup_reason;
 
-  wakeup_reason = esp_deep_sleep_get_wakeup_cause();
+  wakeup_reason = esp_sleep_get_wakeup_cause();
 
   switch (wakeup_reason)
   {
   case ESP_SLEEP_WAKEUP_EXT0:
-    Serial.println("Wakeup caused by external signal using RTC_IO");
+    printf("Wakeup caused by external signal using RTC_IO");
     break;
   case ESP_SLEEP_WAKEUP_EXT1:
-    Serial.println("Wakeup caused by external signal using RTC_CNTL");
+    printf("Wakeup caused by external signal using RTC_CNTL");
     break;
   case ESP_SLEEP_WAKEUP_TIMER:
-    Serial.println("Wakeup caused by timer");
+    printf("Wakeup caused by timer");
     break;
   case ESP_SLEEP_WAKEUP_TOUCHPAD:
-    Serial.println("Wakeup caused by touchpad");
+    printf("Wakeup caused by touchpad");
     break;
   case ESP_SLEEP_WAKEUP_ULP:
-    Serial.println("Wakeup caused by ULP program");
+    printf("Wakeup caused by ULP program");
     break;
   case ESP_SLEEP_WAKEUP_UNDEFINED:
-    Serial.println("Wakeup was not caused by deep sleep");
+    printf("Wakeup was not caused by deep sleep");
     break;
   default:
-    Serial.println("Wakeup was not caused by deep sleep");
+    printf("Wakeup was not caused by deep sleep");
     break;
   }
 }
@@ -46,18 +77,19 @@ void wakeupAndSleep()
 {
   //Increment boot number and print it every reboot
   ++bootCount;
-  Serial.println("Boot number: " + String(bootCount));
+  printf("Boot number: %d", bootCount);
 
   //Print the wakeup reason for ESP32
   print_wakeup_reason();
-  delay(9000); //Take some time to measure current
+  vTaskDelay(9000 / portTICK_PERIOD_MS);
+  ; //Take some time to measure current
 
   /*
   First we configure the wake up source
   We set our ESP32 to wake up every 15 seconds
   */
-  esp_deep_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
-  Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) + " Seconds");
+  esp_sleep_enable_timer_wakeup(sleepTimeInSeconds * uS_TO_S_FACTOR);
+  printf("Setup ESP32 to sleep for every %i in Seconds", sleepTimeInSeconds);
 
   /*
   Next we decide what all peripherals to shut down/keep on
@@ -69,7 +101,7 @@ void wakeupAndSleep()
   The line below turns off all RTC peripherals in deep sleep.
   */
   //esp_deep_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_OFF);
-  //Serial.println("Configured all RTC Peripherals to be powered down in sleep");
+  //printf("Configured all RTC Peripherals to be powered down in sleep");
 
   /*
   Now that we have setup a wake cause and if needed setup the
@@ -79,7 +111,7 @@ void wakeupAndSleep()
   sleep was started, it will sleep forever unless hardware
   reset occurs.
   */
-  Serial.println("Going to sleep now");
+  printf("Going to sleep now");
   esp_deep_sleep_start();
-  Serial.println("This will never be printed");
+  printf("This will never be printed");
 }
