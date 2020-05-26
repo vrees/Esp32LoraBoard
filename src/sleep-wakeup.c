@@ -5,35 +5,34 @@
 #include "esp_sleep.h"
 #include "driver/gpio.h"
 #include "esp32-lora-board-pins.h"
+#include "power.h"
 
 #define uS_TO_S_FACTOR 1000000 /* Conversion factor for micro seconds to seconds */
 int sleepTimeInSeconds = 15;   /* Time ESP32 will go to sleep (in seconds) */
 
 RTC_DATA_ATTR int bootCount = 0;
 
-#define UBAT_ENABLE (25)
-
 void xxxxx()
 {
   printf("Hello world!\n");
-  gpio_pad_select_gpio(UBAT_ENABLE);
-  gpio_set_direction((gpio_num_t)UBAT_ENABLE, GPIO_MODE_OUTPUT);
+  gpio_pad_select_gpio(U_BAT_ENABLE);
+  gpio_set_direction((gpio_num_t)U_BAT_ENABLE, GPIO_MODE_OUTPUT);
 
-  gpio_set_intr_type((gpio_num_t)UBAT_ENABLE, GPIO_INTR_ANYEDGE);
+  gpio_set_intr_type((gpio_num_t)U_BAT_ENABLE, GPIO_INTR_ANYEDGE);
 
   /* Blink off (output low) */
   printf("Turning off the LED\n");
-  gpio_set_level((gpio_num_t)UBAT_ENABLE, 0);
+  gpio_set_level((gpio_num_t)U_BAT_ENABLE, 0);
   vTaskDelay(2000 / portTICK_PERIOD_MS);
   /* Blink on (output high) */
   printf("Turning on the LED\n");
-  gpio_set_level((gpio_num_t)UBAT_ENABLE, 1);
+  gpio_set_level((gpio_num_t)U_BAT_ENABLE, 1);
   vTaskDelay(2000 / portTICK_PERIOD_MS);
 
   printf("Restarting now.\n");
   fflush(stdout);
   gpio_deep_sleep_hold_en();
-  gpio_hold_en((gpio_num_t)UBAT_ENABLE);
+  gpio_hold_en((gpio_num_t)U_BAT_ENABLE);
   esp_sleep_enable_timer_wakeup(10000000);
   esp_deep_sleep_start();
 }
@@ -83,8 +82,17 @@ void wakeupAndSleep()
 
   //Print the wakeup reason for ESP32
   print_wakeup_reason();
-  vTaskDelay(9000 / portTICK_PERIOD_MS);
-  ; //Take some time to measure current
+
+  disablePeripheralPower();
+  initIoPorts();
+
+  vTaskDelay(5000 / portTICK_PERIOD_MS);
+  enableUbatMeasurement();
+  vTaskDelay(5000 / portTICK_PERIOD_MS);
+  disableUbatMeasurement();
+  vTaskDelay(5000 / portTICK_PERIOD_MS);
+  enableUbatMeasurement();
+  vTaskDelay(5000 / portTICK_PERIOD_MS);
 
   /*
   First we configure the wake up source
@@ -114,6 +122,7 @@ void wakeupAndSleep()
   reset occurs.
   */
   printf("Going to sleep now\n");
+  fflush(stdout);
   esp_deep_sleep_start();
   printf("This will never be printed");
 }

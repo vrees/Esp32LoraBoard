@@ -21,8 +21,8 @@
 #define POWER_ENABLE    (16)
 #define U_EXT_ENABLE    (4)
 #define U_EXT_MEASURE   (35)
-#define UBAT_ENABLE     (25)
-#define UBAT_MEASURE    (34)
+#define U_BAT_ENABLE     (25)
+#define U_BAT_MEASURE    (34)
 
 // IO
 #define ROTARY_SWITCH   (17)
