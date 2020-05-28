@@ -2,14 +2,27 @@
 #define _ESP32_LORA_BOARD_PINS_H_
 
 // Pins for LORA chip SPI interface, reset line and interrupt lines (compatible TTGO LoRa32 V2.1.6)
-#define LORA_SCK  (5) 
-#define LORA_CS   (18)
-#define LORA_MISO (19)
-#define LORA_MOSI (27)
-#define LORA_RST  (23)
-#define LORA_IRQ  (26)
-#define LORA_IO1  (33)
-#define LORA_IO2  (32)
+// #define LORA_SCK  (5) 
+// #define LORA_CS   (18)
+// #define LORA_MISO (19)
+// #define LORA_MOSI (27)
+// #define LORA_RST  (23)
+// #define LORA_IRQ  (26)
+// #define LORA_IO1  (33)
+// #define LORA_IO2  (32)
+
+// Pins and other resources
+#define TTN_SPI_HOST      HSPI_HOST
+#define TTN_SPI_DMA_CHAN  1
+#define TTN_PIN_SPI_SCLK  5
+#define TTN_PIN_SPI_MOSI  27
+#define TTN_PIN_SPI_MISO  19
+#define TTN_PIN_NSS       18
+#define TTN_PIN_RXTX      TTN_NOT_CONNECTED
+#define TTN_PIN_RST       23
+#define TTN_PIN_DIO0      26
+#define TTN_PIN_DIO1      33
+
 
 // JTAG ESP-Programmer
 #define JTAG_TDI        (12)

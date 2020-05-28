@@ -8,6 +8,11 @@
 #include "power.h"
 
 #define uS_TO_S_FACTOR 1000000 /* Conversion factor for micro seconds to seconds */
+
+#ifdef __cplusplus
+}
+#endif
+
 int sleepTimeInSeconds = 15;   /* Time ESP32 will go to sleep (in seconds) */
 
 RTC_DATA_ATTR int bootCount = 0;
@@ -126,3 +131,7 @@ void wakeupAndSleep()
   esp_deep_sleep_start();
   printf("This will never be printed");
 }
+
+#ifdef __cplusplus
+}
+#endif

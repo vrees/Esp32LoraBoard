@@ -1,12 +1,20 @@
 #ifndef _POWER_H_
 #define _POWER_H_
 
-void initIoPorts();
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-void enablePeripheralPower();
-void disablePeripheralPower();
+    void initIoPorts();
 
-void enableUbatMeasurement();
-void disableUbatMeasurement();
+    void enablePeripheralPower();
+    void disablePeripheralPower();
 
+    void enableUbatMeasurement();
+    void disableUbatMeasurement();
+
+#ifdef __cplusplus
+}
+#endif
 #endif

@@ -7,6 +7,10 @@
 #define GPIO_OUTPUT_PIN_SEL ((1ULL << POWER_ENABLE) | (1ULL << U_EXT_ENABLE) | (1ULL << U_BAT_ENABLE))
 #define GPIO_INPUT_PIN_SEL ((1ULL << U_EXT_MEASURE) | (1ULL << U_BAT_MEASURE))
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 void initIoPorts()
 {
@@ -57,3 +61,7 @@ void disableUbatMeasurement()
     printf("Disabling Battery voltage Measurement\n");
     gpio_set_level((gpio_num_t)U_BAT_ENABLE, 1);
 }
+
+#ifdef __cplusplus
+}
+#endif
