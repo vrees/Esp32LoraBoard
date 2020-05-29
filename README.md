@@ -11,7 +11,15 @@ ESP32 board including Lora RFM95 module optimized for low power deep sleep opera
 
 
 
-Checkout ttn-esp32 into lib subdir. See https://github.com/manuelbl/ttn-esp32. Switch to branch dev to get it running.
+Checkout ttn-esp32 into lib subdir of this platformio project. See https://github.com/manuelbl/ttn-esp32. Switch to branch dev to get it running.
+
+Change following:
+__src/lmic/config.h__
+#define USE_ORIGINAL_AES
+
+__src/aes/lmic_aes.c__
+line 260:  u4_t t0, t1=0, t2, t3;
+
 
 
 ## Power consumption
