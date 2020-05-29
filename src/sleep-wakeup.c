@@ -7,45 +7,19 @@
 #include "esp32-lora-board-pins.h"
 #include "power.h"
 
-#define uS_TO_S_FACTOR 1000000 /* Conversion factor for micro seconds to seconds */
-
 #ifdef __cplusplus
 }
 #endif
 
-int sleepTimeInSeconds = 15;   /* Time ESP32 will go to sleep (in seconds) */
+#define uS_TO_S_FACTOR 1000000 /* Conversion factor for micro seconds to seconds */
 
+int sleepTimeInSeconds = 20; /* Time ESP32 will go to sleep (in seconds) */
 RTC_DATA_ATTR int bootCount = 0;
-
-void xxxxx()
-{
-  printf("Hello world!\n");
-  gpio_pad_select_gpio(U_BAT_ENABLE);
-  gpio_set_direction((gpio_num_t)U_BAT_ENABLE, GPIO_MODE_OUTPUT);
-
-  gpio_set_intr_type((gpio_num_t)U_BAT_ENABLE, GPIO_INTR_ANYEDGE);
-
-  /* Blink off (output low) */
-  printf("Turning off the LED\n");
-  gpio_set_level((gpio_num_t)U_BAT_ENABLE, 0);
-  vTaskDelay(2000 / portTICK_PERIOD_MS);
-  /* Blink on (output high) */
-  printf("Turning on the LED\n");
-  gpio_set_level((gpio_num_t)U_BAT_ENABLE, 1);
-  vTaskDelay(2000 / portTICK_PERIOD_MS);
-
-  printf("Restarting now.\n");
-  fflush(stdout);
-  gpio_deep_sleep_hold_en();
-  gpio_hold_en((gpio_num_t)U_BAT_ENABLE);
-  esp_sleep_enable_timer_wakeup(10000000);
-  esp_deep_sleep_start();
-}
 
 /*
 Method to print the reason by which ESP32
 */
-void print_wakeup_reason()
+void printWakeupReason()
 {
   esp_sleep_wakeup_cause_t wakeup_reason;
 
@@ -77,55 +51,36 @@ void print_wakeup_reason()
   }
 }
 
-void wakeupAndSleep()
+void wakeupAndInit()
 {
-  printf("BEGIN: wakeupAndSleep()\n");
-
   //Increment boot number and print it every reboot
   ++bootCount;
-  printf("Boot number: %d\n", bootCount);
+  printf("wakeup(). Boot number: %d\n", bootCount);
 
   //Print the wakeup reason for ESP32
-  print_wakeup_reason();
+  printWakeupReason();
 
-  disablePeripheralPower();
+  // define output level before port config to ensure unwanted glitch
+  enablePeripheralPower();
+  enableBatteryVoltageMeasurement();
+  enableExternalVoltageMeasurement();
   initIoPorts();
+}
 
-  vTaskDelay(5000 / portTICK_PERIOD_MS);
-  enableUbatMeasurement();
-  vTaskDelay(5000 / portTICK_PERIOD_MS);
-  disableUbatMeasurement();
-  vTaskDelay(5000 / portTICK_PERIOD_MS);
-  enableUbatMeasurement();
-  vTaskDelay(5000 / portTICK_PERIOD_MS);
+void powerOffAndSleep()
+{
+  printf("Preparing for deep sleep\n");
 
-  /*
-  First we configure the wake up source
-  We set our ESP32 to wake up every 15 seconds
-  */
+  vTaskDelay(1000 / portTICK_PERIOD_MS);
+  disablePeripheralPower();
+  disableExternalVoltageMeasurement();
+  disableBatteryVoltageMeasurement();
+  vTaskDelay(1000 / portTICK_PERIOD_MS);
+
   esp_sleep_enable_timer_wakeup(sleepTimeInSeconds * uS_TO_S_FACTOR);
   printf("Setup ESP32 to sleep for every %i in Seconds\n", sleepTimeInSeconds);
 
-  /*
-  Next we decide what all peripherals to shut down/keep on
-  By default, ESP32 will automatically power down the peripherals
-  not needed by the wakeup source, but if you want to be a poweruser
-  this is for you. Read in detail at the API docs
-  http://esp-idf.readthedocs.io/en/latest/api-reference/system/deep_sleep.html
-  Left the line commented as an example of how to configure peripherals.
-  The line below turns off all RTC peripherals in deep sleep.
-  */
-  //esp_deep_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_OFF);
-  //printf("Configured all RTC Peripherals to be powered down in sleep");
-
-  /*
-  Now that we have setup a wake cause and if needed setup the
-  peripherals state in deep sleep, we can now start going to
-  deep sleep.
-  In the case that no wake up sources were provided but deep
-  sleep was started, it will sleep forever unless hardware
-  reset occurs.
-  */
+  
   printf("Going to sleep now\n");
   fflush(stdout);
   esp_deep_sleep_start();

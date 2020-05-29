@@ -50,16 +50,28 @@ void disablePeripheralPower()
     gpio_set_level((gpio_num_t)POWER_ENABLE, 1);
 }
 
-void enableUbatMeasurement()
+void enableBatteryVoltageMeasurement()
 {
-    printf("Enabling Battery voltage Measurement\n");
+    printf("Enabling Battery Voltage Measurement\n");
     gpio_set_level((gpio_num_t)U_BAT_ENABLE, 0);
 }
 
-void disableUbatMeasurement()
+void disableBatteryVoltageMeasurement()
 {
-    printf("Disabling Battery voltage Measurement\n");
+    printf("Disabling Battery Voltage Measurement\n");
     gpio_set_level((gpio_num_t)U_BAT_ENABLE, 1);
+}
+
+void enableExternalVoltageMeasurement()
+{
+    printf("Enabling External Voltage Measurement\n");
+    gpio_set_level((gpio_num_t)U_EXT_ENABLE, 0);
+}
+
+void disableExternalVoltageMeasurement()
+{
+    printf("Disabling External Voltage Measurement\n");
+    gpio_set_level((gpio_num_t)U_EXT_ENABLE, 1);
 }
 
 #ifdef __cplusplus

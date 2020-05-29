@@ -1,44 +1,39 @@
 #include "freertos/FreeRTOS.h"
+#include "driver/gpio.h"
 #include "esp_event.h"
 #include "nvs_flash.h"
 #include "TheThingsNetwork.h"
 
 #include "esp32-lora-board-pins.h"
 #include "sleep-wakeup.h"
-#include "driver/gpio.h"
 
 static TheThingsNetwork ttn;
 
-const char *devEui = "0013BB291B9FE7C5";
-const char *appEui = "70B3D57ED0029C1F";
-const char *appKey = "1D48B6FABE11BCC164028B0F0E9F4990";
+// TTN-App: public-dummy
+const char *devEui = "008929224D146086";
+const char *appEui = "70B3D57ED002FB99";
+const char *appKey = "28F7CCAD7AFE1643EC96B7F52E145699";
 
-const unsigned TX_INTERVAL = 30;
+const unsigned TX_INTERVAL = 5;
 static uint8_t msgData[] = "Hello, world";
 
 void sendMessages(void *pvParameter)
 {
-    while (1)
-    {
-        printf("Sending message...\n");
-        TTNResponseCode res = ttn.transmitMessage(msgData, sizeof(msgData) - 1);
-        printf(res == kTTNSuccessfulTransmission ? "Message sent.\n" : "Transmission failed.\n");
+    printf("Sending message...\n");
+    TTNResponseCode res = ttn.transmitMessage(msgData, sizeof(msgData) - 1);
+    printf(res == kTTNSuccessfulTransmission ? "Message sent.\n" : "Transmission failed.\n");
+    vTaskDelay(TX_INTERVAL * 1000 / portTICK_PERIOD_MS);
 
-        vTaskDelay(TX_INTERVAL * 1000 / portTICK_PERIOD_MS);
-    }
-}
-
-void handleWakpeup(void *pvParameter)
-{
-    wakeupAndSleep();
+    ttn.shutdown();
+    powerOffAndSleep();
 }
 
 extern "C" void app_main(void)
 {
     printf("Hello world! ****************************************************************\n");
     vTaskDelay(1000 / portTICK_PERIOD_MS); //Take some time to open up the Serial Monitor
-    // printf("Will start main thread.\n");
-    // xTaskCreate(handleWakpeup, "handleWakpeup", 1024 * 4, (void *)0, 3, NULL);
+
+    wakeupAndInit();
 
     esp_err_t err;
     // Initialize the GPIO ISR handler service

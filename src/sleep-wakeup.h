@@ -6,11 +6,8 @@ extern "C"
 {
 #endif
 
-
-
-    void wakeupAndSleep();
-
-
+    void wakeupAndInit();
+    void powerOffAndSleep();
 
 #ifdef __cplusplus
 }
