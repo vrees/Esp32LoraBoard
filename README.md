@@ -39,7 +39,7 @@ Switched off all peripheral components and shutdown the RFM95W lora chip.
 
 | Mode              | Current usage |
 | ----------------- |:-------------:|
-| Deep Sleep        | 20 uA         |
+| Deep Sleep        | 26 uA         |
 
 
 ### Get Started
