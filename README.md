@@ -51,6 +51,8 @@ Switched off all peripheral components and shutdown the RFM95W lora chip.
 
 * Following has to be changed under in ./lib/ttn-esp32 
 Change following:
+
+
 __src/lmic/config.h__
 #define USE_ORIGINAL_AES
 
