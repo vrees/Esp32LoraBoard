@@ -14,6 +14,7 @@ extern "C"
 
 void initIoPorts()
 {
+    printf("Init IO ports\n");
     // Configure all output pins
     gpio_config_t io_conf;
     //disable interrupt
