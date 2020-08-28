@@ -57,5 +57,5 @@ __src/lmic/config.h__
 #define USE_ORIGINAL_AES
 
 __src/aes/lmic_aes.c__
-line 260:  u4_t t0, t1=0, t2, t3;
+line 263:  u4_t t0, t1=0, t2, t3;
 
