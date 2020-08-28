@@ -33,9 +33,9 @@
 // Control Pins
 #define POWER_ENABLE    (16)
 #define U_EXT_ENABLE    (4)
-#define U_EXT_MEASURE   (35)
+#define U_EXT_MEASURE   (35)    // ADC1_CHANNEL_7
 #define U_BAT_ENABLE     (25)
-#define U_BAT_MEASURE    (34)
+#define U_BAT_MEASURE    (34)   // ADC1_CHANNEL_6
 
 // IO
 #define ROTARY_SWITCH   (17)

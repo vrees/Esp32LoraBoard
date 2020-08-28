@@ -6,6 +6,7 @@
 
 #include "esp32-lora-board-pins.h"
 #include "sleep-wakeup.h"
+#include "voltage.h"
 
 static TheThingsNetwork ttn;
 
@@ -60,6 +61,8 @@ extern "C" void app_main(void)
 
     // The below line can be commented after the first run as the data is saved in NVS
     ttn.provision(devEui, appEui, appKey);
+
+    readSensorValues();
 
     printf("Joining...\n");
     if (ttn.join())

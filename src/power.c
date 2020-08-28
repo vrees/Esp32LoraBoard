@@ -30,13 +30,13 @@ void initIoPorts()
     //configure GPIO with the given settings
     gpio_config(&io_conf);
 
-    // Configure all input pins
-    io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
-    io_conf.mode = GPIO_MODE_INPUT;
-    io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
-    io_conf.pull_down_en = 0;
-    io_conf.pull_up_en = 0;
-    gpio_config(&io_conf);
+    // // Configure all input pins
+    // io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
+    // io_conf.mode = GPIO_MODE_INPUT;
+    // io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
+    // io_conf.pull_down_en = 0;
+    // io_conf.pull_up_en = 0;
+    // gpio_config(&io_conf);
 }
 
 void enablePeripheralPower()
@@ -66,13 +66,13 @@ void disableBatteryVoltageMeasurement()
 void enableExternalVoltageMeasurement()
 {
     printf("Enabling External Voltage Measurement\n");
-    gpio_set_level((gpio_num_t)U_EXT_ENABLE, 0);
+    gpio_set_level((gpio_num_t)U_EXT_ENABLE, 1);
 }
 
 void disableExternalVoltageMeasurement()
 {
     printf("Disabling External Voltage Measurement\n");
-    gpio_set_level((gpio_num_t)U_EXT_ENABLE, 1);
+    gpio_set_level((gpio_num_t)U_EXT_ENABLE, 0);
 }
 
 #ifdef __cplusplus
