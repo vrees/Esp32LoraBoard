@@ -30,13 +30,13 @@ int readRoundedAdc(adc1_channel_t channel)
     adc = adc1_get_raw(channel);
 
     adc_sum += adc;
-    printf("%-4d\t", adc);
-    if ((i % 20) == 19)
-      printf("\n");
+    // printf("%-4d\t", adc);
+    // if ((i % 20) == 19)
+    //   printf("\n");
   }
 
   adc_sum = adc_sum / number_round;
-  printf("Rounded=%-4d\n", adc_sum);
+  printf("Rounded ADC value=%-4d\n", adc_sum);
 
   return adc_sum;
 }

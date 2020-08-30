@@ -18,24 +18,8 @@ const char *appKey = "28F7CCAD7AFE1643EC96B7F52E145699";
 const unsigned TX_INTERVAL = 5;
 static uint8_t msgData[] = "{\"led\": true}";
 
-void sendMessages(void *pvParameter)
+void initEsp32Resources()
 {
-    printf("Sending message...\n");
-    TTNResponseCode res = ttn.transmitMessage(msgData, sizeof(msgData) - 1);
-    printf(res == kTTNSuccessfulTransmission ? "Message sent.\n" : "Transmission failed.\n");
-    vTaskDelay(TX_INTERVAL * 1000 / portTICK_PERIOD_MS);
-
-    ttn.shutdown();
-    powerOffAndSleep();
-}
-
-extern "C" void app_main(void)
-{
-    printf("Hello world! ****************************************************************\n");
-    vTaskDelay(1000 / portTICK_PERIOD_MS); //Take some time to open up the Serial Monitor
-
-    wakeupAndInit();
-
     esp_err_t err;
     // Initialize the GPIO ISR handler service
     err = gpio_install_isr_service(ESP_INTR_FLAG_IRAM);
@@ -55,6 +39,69 @@ extern "C" void app_main(void)
     spi_bus_config.max_transfer_sz = 0;
     err = spi_bus_initialize(TTN_SPI_HOST, &spi_bus_config, TTN_SPI_DMA_CHAN);
     ESP_ERROR_CHECK(err);
+}
+
+void printRFSettings(const char *window, const TTNRFSettings &settings)
+{
+    int bw = (1 << (static_cast<int>(settings.bandwidth) - 1)) * 125;
+    int sf = static_cast<int>(settings.spreadingFactor) + 5;
+
+    if (settings.spreadingFactor == kTTNSFNone)
+    {
+        printf("%s: not used\n", window);
+    }
+    else if (settings.spreadingFactor == kTTNFSK)
+    {
+        printf("%s: FSK, BW %dkHz, %d.%d MHz\n",
+               window, bw, settings.frequency / 1000000, (settings.frequency % 1000000 + 50000) / 100000);
+    }
+    else
+    {
+        printf("%s: SF%d, BW %dkHz, %d.%d MHz\n",
+               window, sf, bw, settings.frequency / 1000000, (settings.frequency % 1000000 + 50000) / 100000);
+    }
+}
+
+void printAllRFSettings()
+{
+    printRFSettings("TX ", ttn.txSettings());
+    printRFSettings("RX1", ttn.rx1Settings());
+    printRFSettings("RX2", ttn.rx2Settings());
+    printf("RSSI: %d dBm\n", ttn.rssi());
+}
+
+void sendMessages(void *pvParameter)
+{
+    printf("Sending message...\n");
+    TTNResponseCode res = ttn.transmitMessage(msgData, sizeof(msgData) - 1);
+    printf(res == kTTNSuccessfulTransmission ? "Message sent.\n" : "Transmission failed.\n");
+
+    printAllRFSettings();
+
+    vTaskDelay(TX_INTERVAL * 1000 / portTICK_PERIOD_MS);
+
+    ttn.shutdown();
+    powerOffAndSleep();
+}
+
+void messageReceived(const uint8_t *message, size_t length, port_t port)
+{
+    printf("*********************************************\n");
+    printf("Message of %d bytes received on port %d:", length, port);
+    for (int i = 0; i < length; i++)
+        printf(" %02x", message[i]);
+    printf("\n");
+    printf("*********************************************\n");
+}
+
+extern "C" void app_main(void)
+{
+    printf("Start app ESP32LoraBoard\n");
+    vTaskDelay(1000 / portTICK_PERIOD_MS); //Take some time to open up the Serial Monitor
+
+    wakeupAndInit();
+
+    initEsp32Resources();
 
     // Configure the SX127x pins
     ttn.configurePins(TTN_SPI_HOST, TTN_PIN_NSS, TTN_PIN_RXTX, TTN_PIN_RST, TTN_PIN_DIO0, TTN_PIN_DIO1);
@@ -62,16 +109,20 @@ extern "C" void app_main(void)
     // The below line can be commented after the first run as the data is saved in NVS
     ttn.provision(devEui, appEui, appKey);
 
+    // Register callback for received messages
+    ttn.onMessage(messageReceived);
+
     readSensorValues();
 
-    printf("Joining...\n");
-    if (ttn.join())
-    {
-        printf("Joined.\n");
-        xTaskCreate(sendMessages, "send_messages", 1024 * 4, (void *)0, 3, nullptr);
-    }
-    else
-    {
-        printf("Join failed. Goodbye\n");
-    }
+    // printf("Joining...\n");
+    // if (ttn.join())
+    // {
+    //     printf("Joined.\n");
+    // }
+    // else
+    // {
+    //     printf("Join failed. Goodbye\n");
+    // }
+
+    xTaskCreate(sendMessages, "send_messages", 1024 * 4, (void *)0, 3, nullptr);
 }
