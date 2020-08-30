@@ -11,7 +11,7 @@
 static TheThingsNetwork ttn;
 
 // TTN-App: public-dummy
-const char *devEui = "008929224D146086";
+// const char *devEui = "CC50E3FFFE899B10";
 const char *appEui = "70B3D57ED002FB99";
 const char *appKey = "28F7CCAD7AFE1643EC96B7F52E145699";
 
