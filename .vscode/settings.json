@@ -4,7 +4,8 @@
         "memory": "cpp",
         "random": "cpp",
         "future": "cpp",
-        "optional": "cpp"
+        "optional": "cpp",
+        "system_error": "cpp"
     },
     "cmake.configureOnOpen": true
 }

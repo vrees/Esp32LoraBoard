@@ -94,9 +94,20 @@ void messageReceived(const uint8_t *message, size_t length, port_t port)
     printf("*********************************************\n");
 }
 
+void showMacAddress()
+{
+    uint8_t mac[6];
+    esp_err_t err = esp_efuse_mac_get_default(mac);
+    ESP_ERROR_CHECK(err);
+    printf("MAC-Adress:   ");
+    for (int i = 0; i < 6; i++)
+        printf(" %02x", mac[i]);
+    printf("\n");
+}
+
 extern "C" void app_main(void)
 {
-    printf("Start app ESP32LoraBoard\n");
+    printf("Start app on ESP32LoraBoard\n");
     vTaskDelay(1000 / portTICK_PERIOD_MS); //Take some time to open up the Serial Monitor
 
     wakeupAndInit();
@@ -106,23 +117,22 @@ extern "C" void app_main(void)
     // Configure the SX127x pins
     ttn.configurePins(TTN_SPI_HOST, TTN_PIN_NSS, TTN_PIN_RXTX, TTN_PIN_RST, TTN_PIN_DIO0, TTN_PIN_DIO1);
 
-    // The below line can be commented after the first run as the data is saved in NVS
-    ttn.provision(devEui, appEui, appKey);
+    showMacAddress();
+    ttn.provisionWithMAC(appEui, appKey);
 
     // Register callback for received messages
     ttn.onMessage(messageReceived);
 
     readSensorValues();
 
-    // printf("Joining...\n");
-    // if (ttn.join())
-    // {
-    //     printf("Joined.\n");
-    // }
-    // else
-    // {
-    //     printf("Join failed. Goodbye\n");
-    // }
-
-    xTaskCreate(sendMessages, "send_messages", 1024 * 4, (void *)0, 3, nullptr);
+    printf("Joining...\n");
+    if (ttn.join())
+    {
+        printf("Joined.\n");
+        xTaskCreate(sendMessages, "send_messages", 1024 * 4, (void *)0, 3, nullptr);
+    }
+    else
+    {
+        printf("Join failed. Goodbye\n");
+    }
 }
