@@ -16,7 +16,7 @@ const char *appEui = "70B3D57ED002FB99";
 const char *appKey = "28F7CCAD7AFE1643EC96B7F52E145699";
 
 const unsigned TX_INTERVAL = 5;
-static uint8_t msgData[] = "{\"led\": true}";
+// static uint8_t msgData[] = "{\"<led\": true}";
 
 void initEsp32Resources()
 {
@@ -72,8 +72,8 @@ void printAllRFSettings()
 
 void sendMessages(void *pvParameter)
 {
-    printf("Sending message...\n");
-    TTNResponseCode res = ttn.transmitMessage(msgData, sizeof(msgData) - 1);
+    // rintf("Sending message: %s\n", uploadMessage);
+    TTNResponseCode res = ttn.transmitMessage(uploadMessage, 2);
     printf(res == kTTNSuccessfulTransmission ? "Message sent.\n" : "Transmission failed.\n");
 
     printAllRFSettings();

@@ -1,11 +1,16 @@
 #ifndef _VOLTAGE_H_
 #define _VOLTAGE_H_
-// #include <CayenneLPP.h>
 
-// extern CayenneLPP lpp;
-extern float voltage_42V;
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+    extern uint8_t uploadMessage[];
 
-// void initVoltage();
-void readSensorValues();
+    // void initVoltage();
+    void readSensorValues();
 
+#ifdef __cplusplus
+}
+#endif
 #endif
