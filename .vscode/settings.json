@@ -5,7 +5,9 @@
         "random": "cpp",
         "future": "cpp",
         "optional": "cpp",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "istream": "cpp",
+        "functional": "cpp"
     },
     "cmake.configureOnOpen": true
 }

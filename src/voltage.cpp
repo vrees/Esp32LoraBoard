@@ -1,6 +1,8 @@
 #include <driver/adc.h>
 #include <math.h>
 #include "esp32-lora-board-pins.h"
+#include "CayenneLPP.h"
+#include "voltage.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -8,8 +10,9 @@ extern "C"
 #endif
 
   int number_round = 200;
-  float voltage_42V = 0;
+  float batteryVoltage = 0;
   int adc_reading_42V = 0;
+  /*
   uint8_t uploadMessage[2];
 
   void prepareVoltageMessage(float voltage)
@@ -19,8 +22,10 @@ extern "C"
     uploadMessage[0] = ((volt & 0xFF00) >> 8);
     uploadMessage[1] = volt & 0x00FF;
 
-    printf("uploadMessage=%02X:%02X\n", uploadMessage[0], uploadMessage[1]);
+    printf("uploadMessage=%02X:%02X\n", uploadMessage[0], uploadMessage[1]);   
   }
+*/
+  CayenneLPP lpp(20);
 
   void initVoltage()
   {
@@ -79,11 +84,14 @@ extern "C"
     // read LiPo Voltage (max 4.2 Volt)
     adc_reading_42V = readRoundedAdc(ADC1_CHANNEL_7);
     // voltage_42V = adc_reading_42V * faktor42;
-    voltage_42V = calulateVoltageCompensated(adc_reading_42V);
+    batteryVoltage = calulateVoltageCompensated(adc_reading_42V);
 
-    printf("Battery Voltage: %f Volt)\n", voltage_42V);
+    printf("Battery Voltage: %f Volt)\n", batteryVoltage);
 
-    prepareVoltageMessage(voltage_42V);
+    lpp.reset();
+    lpp.addAnalogInput(1, batteryVoltage);
+
+    // prepareVoltageMessage(voltage_42V);
   }
 #ifdef __cplusplus
 }
