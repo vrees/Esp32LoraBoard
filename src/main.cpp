@@ -18,6 +18,11 @@ const char *appKey = "28F7CCAD7AFE1643EC96B7F52E145699";
 
 const unsigned TX_INTERVAL = 5;
 
+configData_t cfg; // struct holds current device configuration
+
+// initialize payload encoder
+PayloadConvert payload(PAYLOAD_BUFFER_SIZE);
+
 void initEsp32Resources()
 {
     esp_err_t err;
