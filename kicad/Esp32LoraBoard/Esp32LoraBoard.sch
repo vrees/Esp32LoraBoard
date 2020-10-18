@@ -1,17 +1,16 @@
 EESchema Schematic File Version 4
-LIBS:Esp32LoraBoard-cache
 EELAYER 30 0
 EELAYER END
 $Descr A3 16535 11693
 encoding utf-8
 Sheet 1 1
 Title "Esp32LoraBoard"
-Date "2020-04-11"
-Rev "1.1"
+Date "2020-10-17"
+Rev "1.2"
 Comp "Viktor Rees"
 Comment1 "Reset-Button added"
-Comment2 ""
-Comment3 ""
+Comment2 "Fixed FET Orientation"
+Comment3 "Added Jumper J9"
 Comment4 ""
 $EndDescr
 $Comp
@@ -156,7 +155,7 @@ IRQ
 Wire Wire Line
 	7100 5400 7100 5250
 Wire Wire Line
-	7100 5400 9900 5400
+	7100 5400 8950 5400
 Wire Wire Line
 	9900 5400 9900 4250
 Wire Wire Line
@@ -731,9 +730,6 @@ Wire Wire Line
 Wire Wire Line
 	4100 4950 4150 4950
 Wire Wire Line
-	3800 4500 3800 4750
-Connection ~ 3800 4500
-Wire Wire Line
 	4150 4500 3800 4500
 $Comp
 L Device:R R8
@@ -840,8 +836,6 @@ Wire Wire Line
 	1800 5000 1900 5000
 Wire Wire Line
 	1900 5000 1900 5350
-Wire Wire Line
-	1900 5350 2200 5350
 Connection ~ 2200 5350
 Wire Wire Line
 	2200 5350 2200 5300
@@ -919,17 +913,6 @@ Wire Wire Line
 Text Label 8350 3650 2    50   ~ 0
 POWER_ENABLE
 $Comp
-L Device:Q_PMOS_GSD Q3
-U 1 1 5E85ED6C
-P 3900 4950
-F 0 "Q3" H 4106 4996 50  0000 L CNN
-F 1 "Si2301DS_PMOS" H 4106 4905 50  0000 L CNN
-F 2 "Package_TO_SOT_SMD:TSOT-23_HandSoldering" H 4100 5050 50  0001 C CNN
-F 3 "~" H 3900 4950 50  0001 C CNN
-	1    3900 4950
-	-1   0    0    -1  
-$EndComp
-$Comp
 L Connector:TestPoint TP3
 U 1 1 5E8E9498
 P 14250 3700
@@ -957,7 +940,7 @@ F 1 "Si2301DS_PMOS" H 14556 3305 50  0000 L CNN
 F 2 "Package_TO_SOT_SMD:TSOT-23_HandSoldering" H 14550 3450 50  0001 C CNN
 F 3 "~" H 14350 3350 50  0001 C CNN
 	1    14350 3350
-	-1   0    0    -1  
+	-1   0    0    1   
 $EndComp
 Text Label 14750 3350 0    50   ~ 0
 POWER_ENABLE
@@ -1519,4 +1502,101 @@ Wire Wire Line
 Connection ~ 3500 6200
 Wire Wire Line
 	3500 6200 3800 6200
+$Comp
+L Device:Q_PMOS_GSD Q3
+U 1 1 5E85ED6C
+P 3900 4950
+F 0 "Q3" H 4106 4996 50  0000 L CNN
+F 1 "Si2301DS_PMOS" H 4106 4905 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:TSOT-23_HandSoldering" H 4100 5050 50  0001 C CNN
+F 3 "~" H 3900 4950 50  0001 C CNN
+	1    3900 4950
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	3800 4750 3800 4500
+Connection ~ 3800 4500
+$Comp
+L Connector:Conn_01x02_Male J9
+U 1 1 5F90B574
+P 1550 5450
+F 0 "J9" H 1400 5400 50  0000 L CNN
+F 1 "Pin1-to-GND" H 1350 5250 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 1550 5450 50  0001 C CNN
+F 3 "~" H 1550 5450 50  0001 C CNN
+	1    1550 5450
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	1750 5350 1900 5350
+Connection ~ 1900 5350
+Wire Wire Line
+	1750 5450 1900 5450
+Wire Wire Line
+	1900 5450 1900 6200
+Wire Wire Line
+	1900 6200 2200 6200
+Connection ~ 2200 6200
+$Comp
+L Connector:TestPoint TP7
+U 1 1 5F979AE7
+P 8950 5550
+F 0 "TP7" H 9100 5650 50  0000 C CNN
+F 1 "GND" H 8800 5650 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical" H 9150 5550 50  0001 C CNN
+F 3 "~" H 9150 5550 50  0001 C CNN
+	1    8950 5550
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	8950 5550 8950 5400
+Wire Wire Line
+	1900 5350 2200 5350
+Connection ~ 8950 5400
+Wire Wire Line
+	8950 5400 9900 5400
+$Comp
+L Mechanical:Fiducial FID1
+U 1 1 5F9BAB8B
+P 13500 9400
+F 0 "FID1" H 13585 9446 50  0000 L CNN
+F 1 "Fiducial" H 13585 9355 50  0000 L CNN
+F 2 "Fiducial:Fiducial_0.75mm_Mask1.5mm" H 13500 9400 50  0001 C CNN
+F 3 "~" H 13500 9400 50  0001 C CNN
+	1    13500 9400
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:Fiducial FID2
+U 1 1 5F9BCFDF
+P 14100 9400
+F 0 "FID2" H 14185 9446 50  0000 L CNN
+F 1 "Fiducial" H 14185 9355 50  0000 L CNN
+F 2 "Fiducial:Fiducial_0.75mm_Mask1.5mm" H 14100 9400 50  0001 C CNN
+F 3 "~" H 14100 9400 50  0001 C CNN
+	1    14100 9400
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:Fiducial FID3
+U 1 1 5F9CAA25
+P 14700 9400
+F 0 "FID3" H 14785 9446 50  0000 L CNN
+F 1 "Fiducial" H 14785 9355 50  0000 L CNN
+F 2 "Fiducial:Fiducial_0.75mm_Mask1.5mm" H 14700 9400 50  0001 C CNN
+F 3 "~" H 14700 9400 50  0001 C CNN
+	1    14700 9400
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:Fiducial FID4
+U 1 1 5F9D98F6
+P 15250 9400
+F 0 "FID4" H 15335 9446 50  0000 L CNN
+F 1 "Fiducial" H 15335 9355 50  0000 L CNN
+F 2 "Fiducial:Fiducial_0.75mm_Mask1.5mm" H 15250 9400 50  0001 C CNN
+F 3 "~" H 15250 9400 50  0001 C CNN
+	1    15250 9400
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC

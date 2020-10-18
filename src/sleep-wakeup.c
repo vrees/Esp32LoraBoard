@@ -65,6 +65,15 @@ void wakeupAndInit()
   enableBatteryVoltageMeasurement();
   enableExternalVoltageMeasurement();
   initIoPorts();
+
+  /* 
+    for (size_t i = 0; i < 100; i++)
+    {
+      disablePeripheralPower();
+      vTaskDelay(2000);
+      enablePeripheralPower();
+      vTaskDelay(2000);      
+    } */
 }
 
 void powerOffAndSleep()
@@ -80,7 +89,6 @@ void powerOffAndSleep()
   esp_sleep_enable_timer_wakeup(sleepTimeInSeconds * uS_TO_S_FACTOR);
   printf("Setup ESP32 to sleep for every %i in Seconds\n", sleepTimeInSeconds);
 
-  
   printf("Going to sleep now\n");
   fflush(stdout);
   esp_deep_sleep_start();
