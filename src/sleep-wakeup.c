@@ -94,6 +94,9 @@ void powerOffAndSleep()
 
   printf("Going to sleep now\n");
   fflush(stdout);
+
+  // if sensor detects low water level on GPIO23 wakeup process is started
+  esp_sleep_enable_ext0_wakeup(GPIO_NUM_35, 0); 
   esp_deep_sleep_start();
   printf("This will never be printed");
 }
