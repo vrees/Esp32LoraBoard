@@ -98,9 +98,13 @@ extern "C"
 
     printf("External Voltage: %f Volt, \tVCC-Voltage: %f Volt)\n", externalVoltage, vccVoltage);
 
+    int waterLevel = gpio_get_level(GPIO_NUM_35);
+    printf("Water Level is %s  %i \n", waterLevel == 0 ? "Low" : "High", waterLevel);
+
     lpp.reset();
-    lpp.addAnalogInput(1, externalVoltage);
-    lpp.addAnalogInput(2, vccVoltage);
+    lpp.addDigitalInput(0, waterLevel);
+    lpp.addAnalogInput(2, externalVoltage);
+    lpp.addAnalogInput(3, vccVoltage);
 
     // prepareVoltageMessage(voltage_42V);
   }
