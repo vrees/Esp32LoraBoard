@@ -12,6 +12,10 @@ extern "C"
   int number_round = 100;
   int adc_reading_42V = 0;
   int adc_reading_33V = 0;
+
+  // WaterLevel Harry: Use GPIO_NUM_35=U_EXT_MEASURE as digital input. So it cannot be used for adc operations
+#define USE_GPIO35_DIGITAL_IN
+
   /*
   uint8_t uploadMessage[2];
 
@@ -31,7 +35,11 @@ extern "C"
   {
     adc1_config_width(ADC_WIDTH_BIT_12);
     adc1_config_channel_atten(ADC1_CHANNEL_6, ADC_ATTEN_DB_6); // VCC Voltage
+
+#ifndef USE_GPIO35_DIGITAL_IN
+    // WaterLevel Harry: Use GPIO_NUM_35=U_EXT_MEASURE as digital input. So it cannot be used for adc operations
     adc1_config_channel_atten(ADC1_CHANNEL_7, ADC_ATTEN_DB_6); // external Voltage
+#endif
   }
 
   int readRoundedAdc(adc1_channel_t channel)
@@ -88,25 +96,29 @@ extern "C"
   {
     initVoltage();
 
-    // read LiPo Voltage (max 4.2 Volt)
-    adc_reading_42V = readRoundedAdc(ADC1_CHANNEL_7);
+
     // read VCC Voltage (3.3 Volt)
     adc_reading_33V = readRoundedAdc(ADC1_CHANNEL_6);
-
-    float externalVoltage = calulateVoltageCompensated(adc_reading_42V);
     float vccVoltage = (float)adc_reading_33V * 2 * 2.2 / 4095; // wegen ADC_ATTEN_DB_6
+    printf("VCC-Voltage: %f Volt)\n", vccVoltage);
 
-    printf("External Voltage: %f Volt, \tVCC-Voltage: %f Volt)\n", externalVoltage, vccVoltage);
 
+    float externalVoltage = 0;
+#ifdef USE_GPIO35_DIGITAL_IN
+    // WaterLevel Harry: Use GPIO_NUM_35=U_EXT_MEASURE as digital input. So it cannot be used for adc operations
+    // read LiPo Voltage (max 4.2 Volt)
     int waterLevel = gpio_get_level(GPIO_NUM_35);
     printf("Water Level is %s  %i \n", waterLevel == 0 ? "Low" : "High", waterLevel);
+#else
+    adc_reading_42V = readRoundedAdc(ADC1_CHANNEL_7);
+    float externalVoltage = calulateVoltageCompensated(adc_reading_42V);
+    printf("External Voltage: %f Volt, \n", externalVoltage);
+#endif
 
     lpp.reset();
     lpp.addDigitalInput(0, waterLevel);
-    lpp.addAnalogInput(2, externalVoltage);
-    lpp.addAnalogInput(3, vccVoltage);
-
-    // prepareVoltageMessage(voltage_42V);
+    lpp.addAnalogInput(1, vccVoltage);
+    lpp.addAnalogInput(1, externalVoltage);
   }
 #ifdef __cplusplus
 }
