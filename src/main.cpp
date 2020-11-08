@@ -10,6 +10,9 @@
 #include "CayenneLPP.h"
 #include "voltage.h"
 
+
+extern CayenneLPP lpp;
+
 static TheThingsNetwork ttn;
 
 // TTN-App: public-dummy

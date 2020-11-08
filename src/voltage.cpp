@@ -3,6 +3,7 @@
 #include "esp32-lora-board-pins.h"
 #include "CayenneLPP.h"
 #include "voltage.h"
+#include "sleep-wakeup.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -92,34 +93,37 @@ extern "C"
     // return 5.814402272E-2 * pow(adc, 4) - 6.614275168E-1 * pow(adc, 3) + 2.785160725 * pow(adc, 2) - 4.077128492 * adc + 3.802638788;
   }
 
+  water_level_t getWaterLevel()
+  {
+    return gpio_get_level(GPIO_NUM_35) == 0 ? LOW : HIGH;
+  }
+
   void readSensorValues()
   {
     initVoltage();
-
 
     // read VCC Voltage (3.3 Volt)
     adc_reading_33V = readRoundedAdc(ADC1_CHANNEL_6);
     float vccVoltage = (float)adc_reading_33V * 2 * 2.2 / 4095; // wegen ADC_ATTEN_DB_6
     printf("VCC-Voltage: %f Volt)\n", vccVoltage);
 
-
-    float externalVoltage = 0;
+    lpp.reset();
 #ifdef USE_GPIO35_DIGITAL_IN
     // WaterLevel Harry: Use GPIO_NUM_35=U_EXT_MEASURE as digital input. So it cannot be used for adc operations
     // read LiPo Voltage (max 4.2 Volt)
-    int waterLevel = gpio_get_level(GPIO_NUM_35);
-    printf("Water Level is %s  %i \n", waterLevel == 0 ? "Low" : "High", waterLevel);
-#else
-    adc_reading_42V = readRoundedAdc(ADC1_CHANNEL_7);
-    float externalVoltage = calulateVoltageCompensated(adc_reading_42V);
-    printf("External Voltage: %f Volt, \n", externalVoltage);
-#endif
-
-    lpp.reset();
+    water_level_t waterLevel = getWaterLevel();
+    printf("Water Level is %s  %i \n", waterLevel == HIGH ? "High" : "LOW", waterLevel);
     lpp.addDigitalInput(0, waterLevel);
     lpp.addAnalogInput(1, vccVoltage);
-    lpp.addAnalogInput(1, externalVoltage);
+#else
+  adc_reading_42V = readRoundedAdc(ADC1_CHANNEL_7);
+  float externalVoltage = calulateVoltageCompensated(adc_reading_42V);
+  printf("External Voltage: %f Volt, \n", externalVoltage);
+  lpp.addAnalogInput(0, vccVoltage);
+  lpp.addAnalogInput(1, externalVoltage);
+#endif
   }
+
 #ifdef __cplusplus
 }
 #endif
