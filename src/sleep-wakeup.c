@@ -42,11 +42,14 @@ void printWakeupReason()
   case ESP_SLEEP_WAKEUP_ULP:
     printf("Wakeup caused by ULP program\n");
     break;
-  case ESP_SLEEP_WAKEUP_UNDEFINED:
-    printf("Wakeup was not caused by deep sleep\n");
+  case ESP_SLEEP_WAKEUP_GPIO:
+    printf("Wakeup was not caused GPIO\n");
+    break;
+  case ESP_SLEEP_WAKEUP_UART:
+    printf("Wakeup was not caused by UART\n");
     break;
   default:
-    printf("Wakeup was not caused by deep sleep\n");
+    printf("Wakeup was not caused by deep sleep. Reason=%i\n", wakeup_reason);
     break;
   }
 }

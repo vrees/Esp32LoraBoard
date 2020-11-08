@@ -2,6 +2,7 @@
 #include "driver/gpio.h"
 #include "esp_event.h"
 #include "nvs_flash.h"
+#include "esp_sleep.h"
 #include "TheThingsNetwork.h"
 
 #include "esp32-lora-board-pins.h"

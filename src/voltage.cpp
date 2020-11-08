@@ -9,9 +9,9 @@ extern "C"
 {
 #endif
 
-  int number_round = 200;
-  float batteryVoltage = 0;
+  int number_round = 100;
   int adc_reading_42V = 0;
+  int adc_reading_33V = 0;
   /*
   uint8_t uploadMessage[2];
 
@@ -30,7 +30,8 @@ extern "C"
   void initVoltage()
   {
     adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(ADC1_CHANNEL_7, ADC_ATTEN_DB_6); // GPIO=35
+    adc1_config_channel_atten(ADC1_CHANNEL_6, ADC_ATTEN_DB_6); // VCC Voltage
+    adc1_config_channel_atten(ADC1_CHANNEL_7, ADC_ATTEN_DB_6); // external Voltage
   }
 
   int readRoundedAdc(adc1_channel_t channel)
@@ -44,9 +45,9 @@ extern "C"
       adc = adc1_get_raw(channel);
 
       adc_sum += adc;
-      // printf("%-4d\t", adc);
-      // if ((i % 20) == 19)
-      //   printf("\n");
+      printf("%-4d\t", adc);
+      if ((i % 20) == 19)
+        printf("\n");
     }
 
     adc_sum = adc_sum / number_round;
@@ -74,7 +75,13 @@ extern "C"
 
     adc = adc / 1000;
 
+    return adc;
+
+    // Device 1
     return 5.814402272E-2 * pow(adc, 4) - 6.614275168E-1 * pow(adc, 3) + 2.785160725 * pow(adc, 2) - 4.077128492 * adc + 3.802638788;
+
+    // Device 2
+    // return 5.814402272E-2 * pow(adc, 4) - 6.614275168E-1 * pow(adc, 3) + 2.785160725 * pow(adc, 2) - 4.077128492 * adc + 3.802638788;
   }
 
   void readSensorValues()
@@ -83,13 +90,17 @@ extern "C"
 
     // read LiPo Voltage (max 4.2 Volt)
     adc_reading_42V = readRoundedAdc(ADC1_CHANNEL_7);
-    // voltage_42V = adc_reading_42V * faktor42;
-    batteryVoltage = calulateVoltageCompensated(adc_reading_42V);
+    // read VCC Voltage (3.3 Volt)
+    adc_reading_33V = readRoundedAdc(ADC1_CHANNEL_6);
 
-    printf("Battery Voltage: %f Volt)\n", batteryVoltage);
+    float externalVoltage = calulateVoltageCompensated(adc_reading_42V);
+    float vccVoltage = (float)adc_reading_33V * 2 * 2.2 / 4095; // wegen ADC_ATTEN_DB_6
+
+    printf("External Voltage: %f Volt, \tVCC-Voltage: %f Volt)\n", externalVoltage, vccVoltage);
 
     lpp.reset();
-    lpp.addAnalogInput(1, batteryVoltage);
+    lpp.addAnalogInput(1, externalVoltage);
+    lpp.addAnalogInput(2, vccVoltage);
 
     // prepareVoltageMessage(voltage_42V);
   }
