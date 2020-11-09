@@ -15,7 +15,7 @@ extern "C"
 
 
     void readSensorValues();
-    // water_level_t getWaterLevel();
+    water_level_t getWaterLevel();
 
     // extern uint8_t uploadMessage[];
 

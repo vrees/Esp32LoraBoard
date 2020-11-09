@@ -9,23 +9,20 @@
 #include "sleep-wakeup.h"
 #include "voltage.h"
 
-
 #ifdef __cplusplus
 }
 #endif
 
-#define MIKROSEC_TO_SEC_FACTOR 1000000 /* Conversion factor for micro seconds to seconds */
+#define MICROSEC_TO_SEC_FACTOR 1000000 /* Conversion factor for micro seconds to seconds */
 
-#define SLEEP_TIME_NORMAL_SEC 20 // 24 * 60 *60
+#define SLEEP_TIME_NORMAL_SEC 29 * 60
+#define SLEEP_TIME_LOW_LEVEL_SEC 15 * 60
 
-#define SLEEP_TIME_DEBUG_SEC 10
-
-#define SLEEP_TIME_LOW_LEVEL_SEC 5
+// #define SLEEP_TIME_NORMAL_SEC 20
+// #define SLEEP_TIME_LOW_LEVEL_SEC 5
 
 operation_mode_t operation_mode = TIMER_WAKEUP;
 RTC_DATA_ATTR int bootCount = 0;
-
-water_level_t getWaterLevel();
 
 /*
 Method to print the reason by which ESP32
@@ -106,30 +103,23 @@ void powerOffAndSleep()
 
   int sleepTimeInSeconds;
 
-  switch (operation_mode)
+  if (getWaterLevel() == HIGH)
   {
-  case LOW_LEVEL_WAKEUP:
-    sleepTimeInSeconds = SLEEP_TIME_LOW_LEVEL_SEC;
-    break;
-  case DEBUG_WAKEUP:
-    sleepTimeInSeconds = SLEEP_TIME_DEBUG_SEC;
-    break;
-  default:
+    // if sensor detects low water level wakeup process is started
+    esp_sleep_enable_ext0_wakeup(GPIO_NUM_35, 0);
     sleepTimeInSeconds = SLEEP_TIME_NORMAL_SEC;
-    break;
+  }
+  else
+  {
+    esp_sleep_enable_ext0_wakeup(GPIO_NUM_35, 1);
+    sleepTimeInSeconds = SLEEP_TIME_LOW_LEVEL_SEC;
   }
 
-  esp_sleep_enable_timer_wakeup(sleepTimeInSeconds * MIKROSEC_TO_SEC_FACTOR);
+  esp_sleep_enable_timer_wakeup(sleepTimeInSeconds * MICROSEC_TO_SEC_FACTOR);
   printf("Setup ESP32 to sleep next %i in seconds\n", sleepTimeInSeconds);
 
   printf("Going to sleep now\n");
   fflush(stdout);
-
-  if (!(LOW_LEVEL_WAKEUP && getWaterLevel() == LOW))
-  {
-    // if sensor detects low water level on GPIO23 wakeup process is started
-    esp_sleep_enable_ext0_wakeup(GPIO_NUM_35, 0);
-  }
 
   esp_deep_sleep_start();
   printf("This will never be printed");
