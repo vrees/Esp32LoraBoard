@@ -14,6 +14,15 @@ extern "C"
     } water_level_t;
 
 
+    typedef struct {
+        float c0;
+        float c1;
+        float c2;
+        float c3;
+        float c4;
+    } polynom_coeffients_t;
+
+
     void readSensorValues();
     water_level_t getWaterLevel();
 

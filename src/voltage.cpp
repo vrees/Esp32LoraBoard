@@ -17,20 +17,19 @@ extern "C"
   // WaterLevel Harry: Use GPIO_NUM_35=U_EXT_MEASURE as digital input. So it cannot be used for adc operations
 #define USE_GPIO35_DIGITAL_IN
 
-  /*
-  uint8_t uploadMessage[2];
-
-  void prepareVoltageMessage(float voltage)
-  {
-    int16_t volt = voltage * 1000;
-
-    uploadMessage[0] = ((volt & 0xFF00) >> 8);
-    uploadMessage[1] = volt & 0x00FF;
-
-    printf("uploadMessage=%02X:%02X\n", uploadMessage[0], uploadMessage[1]);   
-  }
-*/
   CayenneLPP lpp(20);
+
+/*   Polynom bestimmt aus den folgenden ADC- und Spannungs-Werten 
+      3.665  4.2
+      3.296  3.8
+      2.916  3.4
+      2.543  3.0
+      2.072  2.5
+
+      y = 5.814402272·10-2 x4 - 6.614275168·10-1 x3 + 2.785160725 x2 - 4.077128492 x + 3.802638788
+ */
+  polynom_coeffients_t module1_42Volt = {+3.802638788, -4.077128492, +2.785160725, -6.614275168E-1, 5.814402272E-2};
+  polynom_coeffients_t module2_33Volt = {-9.72728919, +12.975906, -5.48479196, +1.095972506, -0.0816047888};
 
   void initVoltage()
   {
@@ -65,18 +64,14 @@ extern "C"
     return adc_sum;
   }
 
-  double calulateVoltageCompensated(double adc)
+  double calulateVoltageCompensated(double adc, polynom_coeffients_t coeff)
   {
     /* 
-    Calulate ploynom http://www.xuru.org/rt/PR.asp
-    y = 5.814402272·10-2 x4 - 6.614275168·10-1 x3 + 2.785160725 x2 - 4.077128492 x + 3.802638788
-
-    Polynom bestimmt aus den folgenden ADC- und Spannungs-Werten 
-      3.665  4.2
-      3.296  3.8
-      2.916  3.4
-      2.543  3.0
-      2.072  2.5
+    google search term: "polynominterpolation online"
+    Calulate ploynom with 
+    http://www.xuru.org/rt/PR.asp
+    http://www.jaik.de/js/Interpolation.htm
+    https://valdivia.staff.jade-hs.de/interpol.html
   */
 
     if (adc < 1 || adc > 4095)
@@ -84,13 +79,7 @@ extern "C"
 
     adc = adc / 1000;
 
-    return adc;
-
-    // Device 1
-    return 5.814402272E-2 * pow(adc, 4) - 6.614275168E-1 * pow(adc, 3) + 2.785160725 * pow(adc, 2) - 4.077128492 * adc + 3.802638788;
-
-    // Device 2
-    // return 5.814402272E-2 * pow(adc, 4) - 6.614275168E-1 * pow(adc, 3) + 2.785160725 * pow(adc, 2) - 4.077128492 * adc + 3.802638788;
+    return coeff.c4 * pow(adc, 4) + coeff.c3 * pow(adc, 3) + coeff.c2 * pow(adc, 2) + coeff.c1 * adc + coeff.c0;
   }
 
   water_level_t getWaterLevel()
@@ -104,7 +93,9 @@ extern "C"
 
     // read VCC Voltage (3.3 Volt)
     adc_reading_33V = readRoundedAdc(ADC1_CHANNEL_6);
-    float vccVoltage = (float)adc_reading_33V * 2 * 2.2 / 4095; // wegen ADC_ATTEN_DB_6
+    float vccVoltage =  calulateVoltageCompensated(adc_reading_33V, module2_33Volt);    
+    // float vccVoltage = (float)adc_reading_33V * 2 * 2.2 / 4095; // wegen ADC_ATTEN_DB_6
+
     printf("VCC-Voltage: %f Volt)\n", vccVoltage);
 
     lpp.reset();
