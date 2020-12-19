@@ -2,19 +2,27 @@
 #include "driver/gpio.h"
 #include "esp_event.h"
 #include "nvs_flash.h"
+#include "esp_sleep.h"
 #include "TheThingsNetwork.h"
 
 #include "esp32-lora-board-pins.h"
 #include "sleep-wakeup.h"
-#include "CayenneLPP.h"
+// #include "CayenneLPP.h"
 #include "voltage.h"
+
+
+// extern CayenneLPP lpp;
+extern uint8_t payload[];
 
 static TheThingsNetwork ttn;
 
 // TTN-App: public-dummy
-// const char *devEui = "CC50E3FFFE899B10";
+
+// debug board zum Testen 
+// MAC: 3C:71:BF:4C:FC:18
 const char *appEui = "70B3D57ED002FB99";
-const char *appKey = "28F7CCAD7AFE1643EC96B7F52E145699";
+const char *appKey = "E2A4A1D6D67ADD8D539D13DC985F369E";
+
 
 const unsigned TX_INTERVAL = 5;
 
@@ -73,7 +81,7 @@ void printAllRFSettings()
 void sendMessages(void *pvParameter)
 {
     // rintf("Sending message: %s\n", uploadMessage);
-    TTNResponseCode res = ttn.transmitMessage(lpp.getBuffer(), lpp.getSize());
+    TTNResponseCode res = ttn.transmitMessage(payload, PAYLOAD_LENGTH);
     printf(res == kTTNSuccessfulTransmission ? "Message sent.\n" : "Transmission failed.\n");
 
     printAllRFSettings();

@@ -1,36 +1,36 @@
 #include <driver/adc.h>
 #include <math.h>
 #include "esp32-lora-board-pins.h"
-#include "CayenneLPP.h"
 #include "voltage.h"
+#include "sleep-wakeup.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-  int number_round = 200;
-  float batteryVoltage = 0;
+  int number_round = 100;
   int adc_reading_42V = 0;
-  /*
-  uint8_t uploadMessage[2];
+  int adc_reading_33V = 0;
 
-  void prepareVoltageMessage(float voltage)
-  {
-    int16_t volt = voltage * 1000;
+  uint8_t payload[PAYLOAD_LENGTH];
 
-    uploadMessage[0] = ((volt & 0xFF00) >> 8);
-    uploadMessage[1] = volt & 0x00FF;
+  /*   Polynom bestimmt aus den folgenden ADC- und Spannungs-Werten 
+      3.665  4.2
+      3.296  3.8
+      2.916  3.4
+      2.543  3.0
+      2.072  2.5
 
-    printf("uploadMessage=%02X:%02X\n", uploadMessage[0], uploadMessage[1]);   
-  }
-*/
-  CayenneLPP lpp(20);
+      y = 5.814402272·10-2 x4 - 6.614275168·10-1 x3 + 2.785160725 x2 - 4.077128492 x + 3.802638788
+ */
+  polynom_coeffients_t module1_42Volt = {+3.802638788, -4.077128492, +2.785160725, -6.614275168E-1, 5.814402272E-2};
+  polynom_coeffients_t module2_33Volt = {-9.72728919, +12.975906, -5.48479196, +1.095972506, -0.0816047888};
 
   void initVoltage()
   {
     adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(ADC1_CHANNEL_7, ADC_ATTEN_DB_6); // GPIO=35
+    adc1_config_channel_atten(ADC1_CHANNEL_6, ADC_ATTEN_DB_6); // VCC Voltage
   }
 
   int readRoundedAdc(adc1_channel_t channel)
@@ -44,9 +44,9 @@ extern "C"
       adc = adc1_get_raw(channel);
 
       adc_sum += adc;
-      // printf("%-4d\t", adc);
-      // if ((i % 20) == 19)
-      //   printf("\n");
+      printf("%-4d\t", adc);
+      if ((i % 20) == 19)
+        printf("\n");
     }
 
     adc_sum = adc_sum / number_round;
@@ -55,18 +55,14 @@ extern "C"
     return adc_sum;
   }
 
-  double calulateVoltageCompensated(double adc)
+  double calulateVoltageCompensated(double adc, polynom_coeffients_t coeff)
   {
     /* 
-    Calulate ploynom http://www.xuru.org/rt/PR.asp
-    y = 5.814402272·10-2 x4 - 6.614275168·10-1 x3 + 2.785160725 x2 - 4.077128492 x + 3.802638788
-
-    Polynom bestimmt aus den folgenden ADC- und Spannungs-Werten 
-      3.665  4.2
-      3.296  3.8
-      2.916  3.4
-      2.543  3.0
-      2.072  2.5
+    google search term: "polynominterpolation online"
+    Calulate ploynom with 
+    http://www.xuru.org/rt/PR.asp
+    http://www.jaik.de/js/Interpolation.htm
+    https://valdivia.staff.jade-hs.de/interpol.html
   */
 
     if (adc < 1 || adc > 4095)
@@ -74,25 +70,44 @@ extern "C"
 
     adc = adc / 1000;
 
-    return 5.814402272E-2 * pow(adc, 4) - 6.614275168E-1 * pow(adc, 3) + 2.785160725 * pow(adc, 2) - 4.077128492 * adc + 3.802638788;
+    return coeff.c4 * pow(adc, 4) + coeff.c3 * pow(adc, 3) + coeff.c2 * pow(adc, 2) + coeff.c1 * adc + coeff.c0;
+  }
+
+  water_level_t getWaterLevel()
+  {
+    return gpio_get_level(GPIO_NUM_35) == 0 ? LOW : HIGH;
+  }
+
+  void decodeToPayload(water_level_t waterLevel, float vccVoltage)
+  {
+    payload[0] = waterLevel;
+
+    int16_t val = vccVoltage * 100;
+    payload[1] = val >> 8;
+    payload[2] = val;
+
+    payload[3] = operation_mode;
   }
 
   void readSensorValues()
   {
     initVoltage();
 
+    // read VCC Voltage (3.3 Volt)
+    adc_reading_33V = readRoundedAdc(ADC1_CHANNEL_6);
+    float vccVoltage = calulateVoltageCompensated(adc_reading_33V, module2_33Volt);
+    // float vccVoltage = (float)adc_reading_33V * 2 * 2.2 / 4095; // wegen ADC_ATTEN_DB_6
+
+    printf("VCC-Voltage: %f Volt)\n", vccVoltage);
+
+    // WaterLevel Harry: Use GPIO_NUM_35=U_EXT_MEASURE as digital input. So it cannot be used for adc operations
     // read LiPo Voltage (max 4.2 Volt)
-    adc_reading_42V = readRoundedAdc(ADC1_CHANNEL_7);
-    // voltage_42V = adc_reading_42V * faktor42;
-    batteryVoltage = calulateVoltageCompensated(adc_reading_42V);
+    water_level_t waterLevel = getWaterLevel();
+    printf("Water Level is %s  %i \n", waterLevel == HIGH ? "High" : "LOW", waterLevel);
 
-    printf("Battery Voltage: %f Volt)\n", batteryVoltage);
-
-    lpp.reset();
-    lpp.addAnalogInput(1, batteryVoltage);
-
-    // prepareVoltageMessage(voltage_42V);
+    decodeToPayload(waterLevel, vccVoltage);
   }
+
 #ifdef __cplusplus
 }
 #endif

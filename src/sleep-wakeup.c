@@ -6,14 +6,20 @@
 #include "driver/gpio.h"
 #include "esp32-lora-board-pins.h"
 #include "power.h"
+#include "sleep-wakeup.h"
+#include "voltage.h"
 
 #ifdef __cplusplus
 }
 #endif
 
-#define uS_TO_S_FACTOR 1000000 /* Conversion factor for micro seconds to seconds */
+#define MICROSEC_TO_SEC_FACTOR 1000000 /* Conversion factor for micro seconds to seconds */
 
-int sleepTimeInSeconds = 20; /* Time ESP32 will go to sleep (in seconds) */
+#define SLEEP_TIME_NORMAL_SEC  6 * 60 *60  // 6 Stunden
+// #define SLEEP_TIME_NORMAL_SEC 2 * 24 * 60 *60  //  Tage
+#define SLEEP_TIME_LOW_LEVEL_SEC 15 * 60  // alle 15 Minuten
+
+operation_mode_t operation_mode = TIMER_WAKEUP;
 RTC_DATA_ATTR int bootCount = 0;
 
 /*
@@ -29,12 +35,15 @@ void printWakeupReason()
   {
   case ESP_SLEEP_WAKEUP_EXT0:
     printf("Wakeup caused by external signal using RTC_IO\n");
-    break;
-  case ESP_SLEEP_WAKEUP_EXT1:
-    printf("Wakeup caused by external signal using RTC_CNTL\n");
+    operation_mode = LOW_LEVEL_WAKEUP;
     break;
   case ESP_SLEEP_WAKEUP_TIMER:
     printf("Wakeup caused by timer\n");
+    operation_mode = TIMER_WAKEUP;
+    break;
+    /*   
+  case ESP_SLEEP_WAKEUP_EXT1:
+    printf("Wakeup caused by external signal using RTC_CNTL\n");
     break;
   case ESP_SLEEP_WAKEUP_TOUCHPAD:
     printf("Wakeup caused by touchpad\n");
@@ -42,11 +51,16 @@ void printWakeupReason()
   case ESP_SLEEP_WAKEUP_ULP:
     printf("Wakeup caused by ULP program\n");
     break;
-  case ESP_SLEEP_WAKEUP_UNDEFINED:
-    printf("Wakeup was not caused by deep sleep\n");
+  case ESP_SLEEP_WAKEUP_GPIO:
+    printf("Wakeup was not caused GPIO\n");
     break;
+  case ESP_SLEEP_WAKEUP_UART:
+    printf("Wakeup was not caused by UART\n");
+    break;
+ */
   default:
-    printf("Wakeup was not caused by deep sleep\n");
+    printf("Wakeup was not caused by deep sleep. Reason=%i\n", wakeup_reason);
+    operation_mode = DEBUG_WAKEUP;
     break;
   }
 }
@@ -80,17 +94,31 @@ void powerOffAndSleep()
 {
   printf("Preparing for deep sleep\n");
 
-  vTaskDelay(1000 / portTICK_PERIOD_MS);
   disablePeripheralPower();
   disableExternalVoltageMeasurement();
   disableBatteryVoltageMeasurement();
   vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-  esp_sleep_enable_timer_wakeup(sleepTimeInSeconds * uS_TO_S_FACTOR);
-  printf("Setup ESP32 to sleep for every %i in Seconds\n", sleepTimeInSeconds);
+  int sleepTimeInSeconds;
+
+  if (getWaterLevel() == HIGH)
+  {
+    // if sensor detects low water level wakeup process is started
+    esp_sleep_enable_ext0_wakeup(GPIO_NUM_35, 0);
+    sleepTimeInSeconds = SLEEP_TIME_NORMAL_SEC;
+  }
+  else
+  {
+    esp_sleep_enable_ext0_wakeup(GPIO_NUM_35, 1);
+    sleepTimeInSeconds = SLEEP_TIME_LOW_LEVEL_SEC;
+  }
+
+  esp_sleep_enable_timer_wakeup((uint64_t) sleepTimeInSeconds * MICROSEC_TO_SEC_FACTOR);
+  printf("Setup ESP32 to sleep next %i in seconds\n", sleepTimeInSeconds);
 
   printf("Going to sleep now\n");
   fflush(stdout);
+
   esp_deep_sleep_start();
   printf("This will never be printed");
 }
