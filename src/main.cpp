@@ -77,7 +77,7 @@ void task_test_SSD1306i2c(void *ignore)
 
     ESP_LOGI(TAG, "All done!");
 
-    vTaskDelete(NULL);
+    // vTaskDelete(NULL);
 }
 
 void initEsp32Resources()
