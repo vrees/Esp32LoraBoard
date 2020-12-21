@@ -85,13 +85,12 @@ void printAllRFSettings()
 
 void sendMessages(void *pvParameter)
 {
-    // rintf("Sending message: %s\n", uploadMessage);
     TTNResponseCode res = ttn.transmitMessage(payload, PAYLOAD_LENGTH);
     printf(res == kTTNSuccessfulTransmission ? "Message sent.\n" : "Transmission failed.\n");
 
     printAllRFSettings();
 
-    vTaskDelay(TX_INTERVAL * 1000 / portTICK_PERIOD_MS);
+    vTaskDelay(TX_INTERVAL * 200 / portTICK_PERIOD_MS);
 
     ttn.shutdown();
     powerOffAndSleep();
@@ -121,16 +120,19 @@ void showMacAddress()
 extern "C" void app_main(void)
 {
     printf("Start app on ESP32LoraBoard\n");
-    vTaskDelay(1000 / portTICK_PERIOD_MS); //Take some time to open up the Serial Monitor
+    // vTaskDelay(1000 / portTICK_PERIOD_MS); //Take some time to open up the Serial Monitor
 
     wakeupAndInit();
 
     initEsp32Resources();
 
-    task_test_SSD1306i2c(NULL);
+    initSSD1306i2c(NULL);
 
     // Configure the SX127x pins
     ttn.configurePins(TTN_SPI_HOST, TTN_PIN_NSS, TTN_PIN_RXTX, TTN_PIN_RST, TTN_PIN_DIO0, TTN_PIN_DIO1);
+
+    readSensorValues();
+    displayData();
 
     showMacAddress();
     ttn.provisionWithMAC(appEui, appKey);
@@ -138,7 +140,6 @@ extern "C" void app_main(void)
     // Register callback for received messages
     ttn.onMessage(messageReceived);
 
-    readSensorValues();
 
     printf("Joining...\n");
     if (ttn.join())

@@ -15,8 +15,7 @@
 #define MICROSEC_TO_SEC_FACTOR 1000000 /* Conversion factor for micro seconds to seconds */
 
 #define SLEEP_TIME_NORMAL_SEC  6 * 60 *60  // 6 Stunden
-// #define SLEEP_TIME_NORMAL_SEC 2 * 24 * 60 *60  //  Tage
-#define SLEEP_TIME_LOW_LEVEL_SEC 15 * 60  // alle 15 Minuten
+#define SLEEP_TIME_LOW_LEVEL_SEC 1 * 60  // alle 1 Minuten
 
 operation_mode_t operation_mode = TIMER_WAKEUP;
 RTC_DATA_ATTR int bootCount = 0;

@@ -23,10 +23,17 @@ extern "C"
         float c4;
     } polynom_coeffients_t;
 
+    typedef struct
+    {
+        water_level_t waterLevel;
+        float vccVoltage;
+    } sensor_values_t;
+
     void readSensorValues();
     water_level_t getWaterLevel();
 
     extern uint8_t payload[PAYLOAD_LENGTH];
+    extern sensor_values_t sensor_values;
 
 #ifdef __cplusplus
 }

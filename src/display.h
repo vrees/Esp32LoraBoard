@@ -6,7 +6,8 @@ extern "C"
 {
 #endif
 
-void task_test_SSD1306i2c(void *ignore);
+void initSSD1306i2c(void *ignore);
+void displayData();
 
 #ifdef __cplusplus
 }
