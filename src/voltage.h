@@ -6,7 +6,7 @@ extern "C"
 {
 #endif
 
-#define PAYLOAD_LENGTH 4
+#define PAYLOAD_LENGTH 6
 
     typedef enum
     {
