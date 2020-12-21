@@ -27,6 +27,7 @@ extern "C"
     {
         water_level_t waterLevel;
         float vccVoltage;
+        int bootCount;
     } sensor_values_t;
 
     void readSensorValues();
