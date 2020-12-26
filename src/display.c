@@ -53,9 +53,9 @@ void displayData()
 
     u8g2_SetFont(&u8g2, u8g2_font_10x20_mr); // 13 Pixel
     if (sensor_values.waterLevel == 0)
-        u8g2_DrawStr(&u8g2, 54, 26, "normal"); // sensor_values.vccVoltage);
+        u8g2_DrawStr(&u8g2, 54, 26, "niedrig"); // sensor_values.vccVoltage);
     else
-        u8g2_DrawStr(&u8g2, 56, 28, "niedrig"); // sensor_values.vccVoltage);
+        u8g2_DrawStr(&u8g2, 56, 28, "normal"); // sensor_values.vccVoltage);
 
     u8g2_SendBuffer(&u8g2);
 }
