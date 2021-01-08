@@ -136,7 +136,8 @@ extern "C" void app_main(void)
 
     showMacAddress();
     ttn.provisionWithMAC(appEui, appKey);
-
+    // ttn.setAdrEnabled(false);
+    
     // Register callback for received messages
     ttn.onMessage(messageReceived);
 
